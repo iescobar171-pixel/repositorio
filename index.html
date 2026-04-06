@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repositorio GST MLP — Instructivos y Estándares</title>
+  <style>
+    :root {
+      --verde:       #1F5C2E;
+      --verde-medio: #2E7D45;
+      --verde-claro: #EAF4EC;
+      --gris-bg:     #F5F7F5;
+      --gris-borde:  #D6E4D8;
+      --texto:       #1A2E1E;
+      --texto-sub:   #5A7A5E;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--gris-bg);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--verde);
+      color: #fff;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .logo {
+      width: 44px; height: 44px;
+      background: #fff;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; color: var(--verde); font-size: 18px;
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
+    header p  { font-size: 0.82rem; opacity: 0.8; margin-top: 2px; }
+
+    /* ── BUSCADOR ── */
+    .search-bar {
+      max-width: 860px;
+      margin: 28px auto 0;
+      padding: 0 20px;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 11px 16px 11px 42px;
+      border: 1.5px solid var(--gris-borde);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%235A7A5E' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 14px center;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-bar input:focus { border-color: var(--verde-medio); }
+
+    /* ── CONTENIDO ── */
+    .content {
+      max-width: 860px;
+      margin: 20px auto 48px;
+      padding: 0 20px;
+    }
+
+    /* ── ESTADO ── */
+    #status {
+      text-align: center;
+      padding: 48px 0;
+      color: var(--texto-sub);
+      font-size: 0.95rem;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--gris-borde);
+      border-top-color: var(--verde);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── CARPETA ── */
+    .folder {
+      background: #fff;
+      border: 1.5px solid var(--gris-borde);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .folder:hover { box-shadow: 0 2px 10px rgba(31,92,46,.10); }
+
+    .folder-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--verde-claro);
+    }
+    .folder-header:hover { background: #d8edda; }
+
+    .folder-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .folder-name { font-weight: 600; font-size: 0.97rem; flex: 1; }
+    .folder-count {
+      font-size: 0.78rem;
+      color: var(--texto-sub);
+      background: #fff;
+      border: 1px solid var(--gris-borde);
+      border-radius: 12px;
+      padding: 2px 9px;
+    }
+    .chevron {
+      font-size: 0.75rem;
+      color: var(--texto-sub);
+      transition: transform .2s;
+    }
+    .folder.open .chevron { transform: rotate(90deg); }
+
+    .folder-body { display: none; border-top: 1.5px solid var(--gris-borde); }
+    .folder.open .folder-body { display: block; }
+
+    /* ── SUBFOLDER ── */
+    .subfolder { border-bottom: 1px solid var(--gris-borde); }
+    .subfolder:last-child { border-bottom: none; }
+
+    .subfolder-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px 10px 28px;
+      cursor: pointer;
+      background: #FAFCFA;
+    }
+    .subfolder-header:hover { background: var(--verde-claro); }
+    .subfolder-name { font-size: 0.9rem; font-weight: 600; flex: 1; color: var(--verde); }
+    .subfolder-body { display: none; }
+    .subfolder.open .subfolder-body { display: block; }
+    .subfolder .chevron { font-size: 0.7rem; }
+    .subfolder.open .chevron { transform: rotate(90deg); }
+
+    /* ── ARCHIVO ── */
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 18px 9px 44px;
+      border-bottom: 1px solid #F0F4F0;
+      transition: background .15s;
+    }
+    .file-item:last-child { border-bottom: none; }
+    .file-item:hover { background: #F3FAF4; }
+
+    .file-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .file-name { flex: 1; font-size: 0.88rem; color: var(--texto); }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 13px;
+      background: var(--verde);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .btn-download:hover { background: var(--verde-medio); }
+
+    /* archivos en raíz (sin subcarpeta) */
+    .root-file { padding-left: 28px; }
+
+    /* ── SIN RESULTADOS ── */
+    .no-results {
+      text-align: center;
+      padding: 32px;
+      color: var(--texto-sub);
+      font-size: 0.93rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.78rem;
+      color: var(--texto-sub);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MLP</div>
+  <div>
+    <h1>Repositorio — Instructivos y Estándares</h1>
+    <p>Gestión de Servicios y Terceros — Minera Los Pelambres</p>
+  </div>
+</header>
+
+<div class="search-bar">
+  <input type="text" id="search" placeholder="Buscar instructivo o estándar..." oninput="filtrar()" />
+</div>
+
+<div class="content">
+  <div id="status">
+    <div class="spinner"></div>
+    Cargando documentos...
+  </div>
+  <div id="tree"></div>
+</div>
+
+<footer>GST MLP &mdash; Uso interno y proveedores autorizados</footer>
+
+<script>
+  // ─────────────────────────────────────────────
+  //  CONFIGURACIÓN  ←  edita estas dos líneas
+  // ─────────────────────────────────────────────
+  const GITHUB_USER = "iescobar171-pixel";
+  const GITHUB_REPO = "repositorio";
+  const BRANCH      = "main";
+  // ─────────────────────────────────────────────
+
+  const RAW_BASE  = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}`;
+  const API_TREE  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/git/trees/${BRANCH}?recursive=1`;
+
+  const EXT_ICON = {
+    pdf:  "📄", docx: "📝", doc: "📝",
+    pptx: "📊", ppt: "📊",
+    xlsx: "📋", xls: "📋",
+    bpm:  "⚙️",  png: "🖼️", jpg: "🖼️",
+  };
+
+  function iconFor(name) {
+    const ext = name.split(".").pop().toLowerCase();
+    return EXT_ICON[ext] || "📎";
+  }
+
+  // Estructura: { "Carpeta": { "__files__": [...], "Subcarpeta": { "__files__": [...] } } }
+  let estructura = {};
+  let todosLosArchivos = []; // para búsqueda
+
+  async function cargar() {
+    try {
+      const res  = await fetch(API_TREE);
+      if (!res.ok) throw new Error(`GitHub API: ${res.status}`);
+      const data = await res.json();
+
+      const blobs = data.tree.filter(n => n.type === "blob");
+      estructura  = {};
+      todosLosArchivos = [];
+
+      blobs.forEach(node => {
+        const parts = node.path.split("/");
+        const file  = parts[parts.length - 1];
+        if (file.startsWith(".") || file === "desktop.ini" || file === "index.html") return;
+
+        todosLosArchivos.push({ path: node.path, name: file });
+
+        if (parts.length === 1) {
+          // raíz
+          if (!estructura["__root__"]) estructura["__root__"] = { __files__: [] };
+          estructura["__root__"].__files__.push(file);
+        } else if (parts.length === 2) {
+          const carpeta = parts[0];
+          if (!estructura[carpeta]) estructura[carpeta] = { __files__: [] };
+          estructura[carpeta].__files__.push(file);
+        } else {
+          const carpeta    = parts[0];
+          const subcarpeta = parts.slice(1, parts.length - 1).join("/");
+          if (!estructura[carpeta]) estructura[carpeta] = { __files__: [] };
+          if (!estructura[carpeta][subcarpeta]) estructura[carpeta][subcarpeta] = { __files__: [] };
+          estructura[carpeta][subcarpeta].__files__.push(file);
+        }
+      });
+
+      document.getElementById("status").style.display = "none";
+      renderTree(estructura);
+    } catch (e) {
+      document.getElementById("status").innerHTML =
+        `<p style="color:#c0392b">❌ No se pudo cargar: ${e.message}</p>
+         <p style="margin-top:8px;font-size:.85rem">Verifica que el repositorio sea público y que GITHUB_USER/GITHUB_REPO estén bien configurados.</p>`;
+    }
+  }
+
+  function fileUrl(path) {
+    return `${RAW_BASE}/${encodeURIPath(path)}`;
+  }
+
+  function encodeURIPath(path) {
+    return path.split("/").map(encodeURIComponent).join("/");
+  }
+
+  function renderTree(arbol, query = "") {
+    const container = document.getElementById("tree");
+    container.innerHTML = "";
+    const q = query.toLowerCase();
+
+    let hayAlgo = false;
+
+    Object.keys(arbol).sort().forEach(carpeta => {
+      if (carpeta === "__root__") return;
+
+      const datos = arbol[carpeta];
+      const subkeys = Object.keys(datos).filter(k => k !== "__files__");
+
+      // Filtrar archivos de raíz de carpeta
+      const filesRaiz = (datos.__files__ || []).filter(f => !q || f.toLowerCase().includes(q));
+
+      // Filtrar subcarpetas
+      const subsFiltradas = subkeys.filter(sub => {
+        const files = datos[sub].__files__ || [];
+        return !q || sub.toLowerCase().includes(q) || files.some(f => f.toLowerCase().includes(q));
+      });
+
+      if (!q || filesRaiz.length || subsFiltradas.length || carpeta.toLowerCase().includes(q)) {
+        hayAlgo = true;
+        const totalArchivos = countFiles(datos);
+
+        const div = document.createElement("div");
+        div.className = "folder" + (q ? " open" : "");
+        div.innerHTML = `
+          <div class="folder-header" onclick="toggleFolder(this)">
+            <span class="folder-icon">📁</span>
+            <span class="folder-name">${carpeta}</span>
+            <span class="folder-count">${totalArchivos} archivo${totalArchivos !== 1 ? "s" : ""}</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="folder-body"></div>
+        `;
+
+        const body = div.querySelector(".folder-body");
+
+        // Archivos directos en la carpeta raíz
+        filesRaiz.forEach(file => {
+          const path = `${carpeta}/${file}`;
+          body.appendChild(makeFileItem(file, path, "root-file"));
+        });
+
+        // Subcarpetas
+        subsFiltradas.forEach(sub => {
+          const subFiles = (datos[sub].__files__ || []).filter(f => !q || f.toLowerCase().includes(q) || sub.toLowerCase().includes(q));
+          const subEl = document.createElement("div");
+          subEl.className = "subfolder" + (q ? " open" : "");
+          subEl.innerHTML = `
+            <div class="subfolder-header" onclick="toggleFolder(this)">
+              <span class="folder-icon" style="font-size:.9rem">📂</span>
+              <span class="subfolder-name">${sub}</span>
+              <span class="folder-count" style="font-size:.74rem">${subFiles.length}</span>
+              <span class="chevron">▶</span>
+            </div>
+            <div class="subfolder-body"></div>
+          `;
+          const subBody = subEl.querySelector(".subfolder-body");
+          subFiles.forEach(file => {
+            const path = `${carpeta}/${sub}/${file}`;
+            subBody.appendChild(makeFileItem(file, path));
+          });
+          body.appendChild(subEl);
+        });
+
+        container.appendChild(div);
+      }
+    });
+
+    // Archivos en raíz del repo
+    if (arbol["__root__"]) {
+      const rootFiles = (arbol["__root__"].__files__ || []).filter(f => !q || f.toLowerCase().includes(q));
+      if (rootFiles.length) {
+        hayAlgo = true;
+        const div = document.createElement("div");
+        div.className = "folder open";
+        div.innerHTML = `
+          <div class="folder-header" onclick="toggleFolder(this)">
+            <span class="folder-icon">📁</span>
+            <span class="folder-name">Documentos generales</span>
+            <span class="folder-count">${rootFiles.length} archivo${rootFiles.length !== 1 ? "s" : ""}</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="folder-body"></div>
+        `;
+        const body = div.querySelector(".folder-body");
+        rootFiles.forEach(f => body.appendChild(makeFileItem(f, f, "root-file")));
+        container.appendChild(div);
+      }
+    }
+
+    if (!hayAlgo) {
+      container.innerHTML = `<div class="no-results">No se encontraron documentos para "<strong>${query}</strong>"</div>`;
+    }
+  }
+
+  function countFiles(node) {
+    let n = (node.__files__ || []).length;
+    Object.keys(node).filter(k => k !== "__files__").forEach(k => n += countFiles(node[k]));
+    return n;
+  }
+
+  function makeFileItem(name, path, extraClass = "") {
+    const el = document.createElement("div");
+    el.className = `file-item ${extraClass}`;
+    el.innerHTML = `
+      <span class="file-icon">${iconFor(name)}</span>
+      <span class="file-name">${name}</span>
+      <a class="btn-download" href="${fileUrl(path)}" download="${name}" target="_blank">
+        ⬇ Descargar
+      </a>
+    `;
+    return el;
+  }
+
+  function toggleFolder(header) {
+    const parent = header.parentElement;
+    parent.classList.toggle("open");
+  }
+
+  let timer;
+  function filtrar() {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const q = document.getElementById("search").value.trim();
+      renderTree(estructura, q);
+    }, 200);
+  }
+
+  cargar();
+</script>
+</body>
+</html>
