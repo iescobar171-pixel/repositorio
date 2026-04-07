@@ -135,7 +135,8 @@ function render() {
 
 // ── TARJETA ────────────────────────────────────────────────────
 function cardHTML(file) {
-  const url      = `${RAW_BASE}/${encodePath(file.path)}`;
+  const rawUrl   = `${RAW_BASE}/${encodePath(file.path)}`;
+  const viewUrl  = viewerUrl(file.type, rawUrl);
   const icon     = TYPE_ICON[file.type]  || TYPE_ICON.other;
   const label    = TYPE_LABEL[file.type] || "Archivo";
 
@@ -150,14 +151,38 @@ function cardHTML(file) {
       </div>
       <span class="type-badge ${file.type}">${label}</span>
       <div class="card-actions">
-        <a class="btn btn-view" href="${url}" target="_blank" rel="noopener">
+        <a class="btn btn-view" href="${viewUrl}" target="_blank" rel="noopener">
           👁 Ver
         </a>
-        <a class="btn btn-download" href="${url}" download="${file.name}" target="_blank" rel="noopener">
+        <button class="btn btn-download" onclick="descargar('${rawUrl.replace(/'/g,"\\'")}','${file.name.replace(/'/g,"\\'")}')">
           ⬇ Descargar
-        </a>
+        </button>
       </div>
     </div>`;
+}
+
+// ── VER ARCHIVO ────────────────────────────────────────────────
+function viewerUrl(type, rawUrl) {
+  if (type === "pdf") return rawUrl;
+  // Office Online viewer para Word, Excel, PowerPoint
+  return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(rawUrl)}`;
+}
+
+// ── DESCARGAR ARCHIVO ──────────────────────────────────────────
+async function descargar(url, nombre) {
+  try {
+    const res  = await fetch(url);
+    const blob = await res.blob();
+    const a    = document.createElement("a");
+    a.href     = URL.createObjectURL(blob);
+    a.download = nombre;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  } catch {
+    window.open(url, "_blank");
+  }
 }
 
 // ── UTILIDADES ─────────────────────────────────────────────────
