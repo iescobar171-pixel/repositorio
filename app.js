@@ -169,13 +169,26 @@ function viewerUrl(type, rawUrl) {
 }
 
 // ── DESCARGAR ARCHIVO ──────────────────────────────────────────
+const MIME_TYPES = {
+  pdf:  "application/pdf",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  doc:  "application/msword",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  xls:  "application/vnd.ms-excel",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  ppt:  "application/vnd.ms-powerpoint",
+};
+
 async function descargar(url, nombre) {
   try {
-    const res  = await fetch(url);
-    const blob = await res.blob();
-    const a    = document.createElement("a");
-    a.href     = URL.createObjectURL(blob);
-    a.download = nombre;
+    const ext      = nombre.split(".").pop().toLowerCase();
+    const mime     = MIME_TYPES[ext] || "application/octet-stream";
+    const res      = await fetch(url);
+    const buffer   = await res.arrayBuffer();
+    const blob     = new Blob([buffer], { type: mime });
+    const a        = document.createElement("a");
+    a.href         = URL.createObjectURL(blob);
+    a.download     = nombre;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
