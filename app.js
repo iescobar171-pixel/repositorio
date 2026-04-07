@@ -154,9 +154,9 @@ function cardHTML(file) {
         <a class="btn btn-view" href="${viewUrl}" target="_blank" rel="noopener">
           👁 Ver
         </a>
-        <button class="btn btn-download" onclick="descargar('${rawUrl.replace(/'/g,"\\'")}','${file.name.replace(/'/g,"\\'")}')">
+        <a class="btn btn-download" href="${rawUrl}" target="_blank" rel="noopener">
           ⬇ Descargar
-        </button>
+        </a>
       </div>
     </div>`;
 }
@@ -169,33 +169,8 @@ function viewerUrl(type, rawUrl) {
 }
 
 // ── DESCARGAR ARCHIVO ──────────────────────────────────────────
-const MIME_TYPES = {
-  pdf:  "application/pdf",
-  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  doc:  "application/msword",
-  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  xls:  "application/vnd.ms-excel",
-  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  ppt:  "application/vnd.ms-powerpoint",
-};
-
-async function descargar(url, nombre) {
-  try {
-    const ext      = nombre.split(".").pop().toLowerCase();
-    const mime     = MIME_TYPES[ext] || "application/octet-stream";
-    const res      = await fetch(url);
-    const buffer   = await res.arrayBuffer();
-    const blob     = new Blob([buffer], { type: mime });
-    const a        = document.createElement("a");
-    a.href         = URL.createObjectURL(blob);
-    a.download     = nombre;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
-  } catch {
-    window.open(url, "_blank");
-  }
+function descargar(url) {
+  window.open(url, "_blank");
 }
 
 // ── UTILIDADES ─────────────────────────────────────────────────
